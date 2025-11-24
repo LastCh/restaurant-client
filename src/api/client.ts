@@ -4,9 +4,10 @@ import type {
   SignInRequest,
   JwtResponse,
   DishDTO,
-  ReservationDTO,
-  PageResponse,
 } from '@/types/api';
+
+import type { CreateReservationDTO, ReservationDTO, PageResponse } from '@/types/api';
+
 
 class ApiClient {
   private client: AxiosInstance;
@@ -33,11 +34,16 @@ class ApiClient {
       (response) => response,
       async (error: AxiosError) => {
         if (error.response?.status === 401) {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refreshToken');
-          localStorage.removeItem('user');
+          const token = localStorage.getItem('accessToken');
+
+          // если токена нет - значит это запрос входа, не редиректим
+          if (!token) return Promise.reject(error);
+
+          // иначе токен просрочен - редиректим
+          localStorage.clear();
           window.location.href = '/login';
         }
+
         return Promise.reject(error);
       }
     );
@@ -49,19 +55,24 @@ class ApiClient {
     return response.data;
   }
 
-  async signIn(data: SignInRequest): Promise<JwtResponse> {
+    async signIn(data: SignInRequest): Promise<JwtResponse> {
     const response = await this.client.post('/auth/signin', data);
     const jwtResponse = response.data;
-    // Сохраняем токены
+
+    // Сохраняем токены и данные пользователя
     localStorage.setItem('accessToken', jwtResponse.accessToken);
     localStorage.setItem('refreshToken', jwtResponse.refreshToken);
-    localStorage.setItem('user', JSON.stringify({
+    localStorage.setItem("user", JSON.stringify({
       id: jwtResponse.userId,
+      clientId: jwtResponse.clientId,
       username: jwtResponse.username,
       role: jwtResponse.role,
     }));
+
+
     return jwtResponse;
   }
+
 
   async refreshToken(refreshToken: string): Promise<{ accessToken: string }> {
     const response = await this.client.post('/auth/refresh', { refreshToken });

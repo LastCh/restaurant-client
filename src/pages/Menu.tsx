@@ -22,7 +22,7 @@ export const Menu = () => {
 
   const filteredDishes = dishes.filter(
     (dish) =>
-      dish.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      dish.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       dish.description.toLowerCase().includes(searchTerm.toLowerCase())
   );
 

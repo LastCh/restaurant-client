@@ -1,5 +1,6 @@
 export interface User {
   id: number;
+  clientId: number | null; 
   username: string;
   fullName: string;
   phone: string;
@@ -24,6 +25,7 @@ export interface JwtResponse {
   refreshToken: string;
   tokenType: string;
   userId: number;
+  clientId: number;
   username: string;
   role: string;
   expiresIn: number;
@@ -33,31 +35,43 @@ export interface DishDTO {
   id: number;
   name: string;
   description: string;
-  price: number;
   category: string;
-  available: boolean;
+  price: number;
+  isAvailable: boolean;
   imageUrl?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  preparationTimeMinutes: number;
+  createdAt: string;
+  updatedAt: string;
 }
+
+export interface CreateReservationDTO {
+  reservationTime: string;
+  durationMinutes?: number;
+  partySize: number;
+  clientId: number;
+  tableId: number;
+  notes?: string;
+}
+
 
 export interface ReservationDTO {
   id?: number;
-  clientId: number;
+  clientId?: number; 
   tableId: number;
   reservationTime: string;
-  // Для совместимости поддерживаем оба имени: backend ожидает `partySize`.
   numberOfGuests?: number;
   partySize?: number;
-  // Длительность бронирования в минутах (backend требует `durationMinutes`)
   durationMinutes?: number;
   status?: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
-  // Текст заметок/пожеланий: backend использует `notes` в примерах.
   specialRequests?: string;
   notes?: string;
   createdAt?: string;
   updatedAt?: string;
 }
+
+
+
+
 
 export interface TableDTO {
   id: number;

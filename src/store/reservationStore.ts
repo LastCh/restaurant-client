@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { apiClient } from '@/api/client';
-import type { ReservationDTO, PageResponse } from '@/types/api';
+import { useAuthStore } from '@/store/authStore';
+import type { CreateReservationDTO, ReservationDTO, PageResponse } from '@/types/api';
+
 
 interface ReservationState {
   reservations: ReservationDTO[];
@@ -21,25 +23,30 @@ export const useReservationStore = create<ReservationState>((set) => ({
   error: null,
 
   createReservation: async (data: ReservationDTO) => {
-    set({ isLoading: true, error: null });
-    try {
-      const reservation = await apiClient.createReservation(data);
-      set({ isLoading: false });
-      return reservation;
-    } catch (error: any) {
-      set({
-        error: error.response?.data?.message || 'Ошибка создания бронирования',
-        isLoading: false,
-      });
-      throw error;
-    }
+    const user = useAuthStore.getState().user;
+    if (!user?.clientId) throw new Error("ClientId not found");
+
+    const payload: CreateReservationDTO = {
+      reservationTime: data.reservationTime,
+      tableId: data.tableId,
+      partySize: data.partySize ?? 1, // <- fallback
+      durationMinutes: data.durationMinutes ?? 90,
+      notes: data.notes,
+      clientId: user.clientId,
+    };
+
+    return await apiClient.createReservation(payload);
   },
+
+
 
   fetchReservationsByClient: async (clientId: number) => {
     set({ isLoading: true, error: null });
+
     try {
       const response: PageResponse<ReservationDTO> =
         await apiClient.getReservationsByClient(clientId);
+
       set({
         reservations: response.content,
         isLoading: false,
@@ -58,8 +65,10 @@ export const useReservationStore = create<ReservationState>((set) => ({
     endTime: string
   ) => {
     set({ isLoading: true, error: null });
+
     try {
       const slots = await apiClient.getAvailableSlots(tableId, startTime, endTime);
+
       set({ isLoading: false });
       return slots;
     } catch (error: any) {
@@ -71,4 +80,3 @@ export const useReservationStore = create<ReservationState>((set) => ({
     }
   },
 }));
-

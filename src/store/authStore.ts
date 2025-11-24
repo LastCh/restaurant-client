@@ -4,9 +4,11 @@ import type { SignUpRequest, SignInRequest, JwtResponse } from '@/types/api';
 
 interface User {
   id: number;
+  clientId: number | null;
   username: string;
   role: string;
 }
+
 
 interface AuthState {
   user: User | null;
@@ -34,16 +36,24 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  signIn: async (data: SignInRequest) => {
+    signIn: async (data: SignInRequest) => {
     set({ isLoading: true });
     try {
       const response: JwtResponse = await apiClient.signIn(data);
+
+      const user = {
+        id: response.userId,
+        clientId: response.clientId,
+        username: response.username,
+        role: response.role,
+      };
+
+      localStorage.setItem("accessToken", response.accessToken);
+      localStorage.setItem("refreshToken", response.refreshToken);
+      localStorage.setItem("user", JSON.stringify(user));
+
       set({
-        user: {
-          id: response.userId,
-          username: response.username,
-          role: response.role,
-        },
+        user,
         isAuthenticated: true,
         isLoading: false,
       });
@@ -52,6 +62,7 @@ export const useAuthStore = create<AuthState>((set) => ({
       throw error;
     }
   },
+
 
   signOut: () => {
     localStorage.removeItem('accessToken');

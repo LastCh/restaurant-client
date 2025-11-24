@@ -60,7 +60,11 @@ export const Home = () => {
               fontSize: '24px',
             }}
           >
-            Изображение ресторана
+            <img
+                src="/images/restaurant-hero.jpg"
+                alt="Ресторан"
+                style={{ maxHeight: '100%', borderRadius: '8px', width: '100%', objectFit: 'cover' }}
+              />
           </div>
         </Col>
       </Row>

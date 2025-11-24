@@ -32,7 +32,7 @@ export const MenuCard = ({ dish }: MenuCardProps) => {
               color: '#999',
             }}
           >
-            Нет изображения
+            <Image src={dish.imageUrl} /> <div>Нет изображения</div>
           </div>
         )
       }
@@ -43,8 +43,8 @@ export const MenuCard = ({ dish }: MenuCardProps) => {
             <Title level={5} style={{ margin: 0, flex: 1 }}>
               {dish.name}
             </Title>
-            <Tag color={dish.available ? 'green' : 'red'}>
-              {dish.available ? 'В наличии' : 'Нет в наличии'}
+            <Tag color={dish.isAvailable ? 'green' : 'red'}>
+              {dish.isAvailable ? 'В наличии' : 'Нет в наличии'}
             </Tag>
           </div>
         }

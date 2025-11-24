@@ -15,6 +15,8 @@ export const Header = () => {
     navigate('/');
   };
 
+  const adminUrl = (import.meta as any).env?.VITE_ADMIN_URL || 'http://localhost:5173';
+
   const menuItems = [
     {
       key: '/',
@@ -32,6 +34,17 @@ export const Header = () => {
       label: <Link to="/reservation">Бронирование</Link>,
     },
   ];
+
+  // Добавляем кнопку управления в меню слева для сотрудников
+  if (isAuthenticated && user && ['ADMIN', 'MANAGER', 'WAITER'].includes(user.role)) {
+    menuItems.push({
+      key: 'admin_panel',
+      icon: <UserOutlined />,
+      label: (
+        <a href={`${adminUrl}/dashboard`} target="_blank" rel="noreferrer">Управление</a>
+      ),
+    });
+  }
 
   return (
     <AntHeader
@@ -63,15 +76,7 @@ export const Header = () => {
               <Avatar icon={<UserOutlined />} />
               <span>{user?.username}</span>
             </Space>
-            {user?.role === 'ADMIN' && (
-              <Button
-                type="link"
-                href="http://localhost:5173/dashboard"
-                target="_blank"
-              >
-                Админ-панель
-              </Button>
-            )}
+            {/* admin button moved to left menu */}
             <Button icon={<LogoutOutlined />} onClick={handleSignOut}>
               Выход
             </Button>
